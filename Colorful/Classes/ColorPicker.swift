@@ -8,6 +8,46 @@
 
 import UIKit
 
+public class ColorPickerStyle: NSObject, NSCopying {
+    public func copy(with zone: NSZone? = nil) -> Any {
+        return ColorPickerStyle.init(slideShadowBgColor: self.sliderShadowBgColor)
+    }
+    
+    public var sliderShadowBgColor: UIColor
+    public var sliderSeparatorColor: UIColor
+    
+    init(slideShadowBgColor: UIColor? = nil, slideSeparatorColor: UIColor? = nil) {
+        if let color = slideShadowBgColor {
+            self.sliderShadowBgColor = color
+        } else {
+            self.sliderShadowBgColor = {
+                let bgColor: UIColor
+                if #available(iOS 13.0, *) {
+                    bgColor = UIColor.systemBackground
+                } else {
+                    bgColor = UIColor.white
+                }
+                return bgColor
+            }()
+        }
+        
+        if let color = slideSeparatorColor {
+            self.sliderSeparatorColor = color
+        } else {
+            self.sliderSeparatorColor = {
+                let separatorColor: UIColor
+                if #available(iOS 13.0, *) {
+                    separatorColor = UIColor.tertiarySystemGroupedBackground
+                } else {
+                    separatorColor = #colorLiteral(red: 0.8940519691, green: 0.894156158, blue: 0.8940039277, alpha: 1)
+                }
+                return separatorColor
+            }()
+        }
+        super.init()
+    }
+}
+
 public final class ColorPicker: UIControl {
     
     private(set) lazy var colorSpace: HRColorSpace = { preconditionFailure() }()
@@ -17,9 +57,20 @@ public final class ColorPicker: UIControl {
             return hsvColor.uiColor
         }
     }
+    
+    @objc @NSCopying public dynamic var style: ColorPickerStyle = ColorPickerStyle() {
+        didSet {
+            if self.style.sliderShadowBgColor != self.brightnessSlider.sliderShadowBackgroundColor {
+                self.brightnessSlider.sliderShadowBackgroundColor = self.style.sliderShadowBgColor
+            }
+            if self.style.sliderSeparatorColor != self.brightnessSlider.sliderSeparatorColor {
+                self.brightnessSlider.sliderSeparatorColor = self.style.sliderSeparatorColor
+            }
+        }
+    }
 
     private let brightnessCursor = BrightnessCursor()
-    private let brightnessSlider = BrightnessSlider()
+    private var brightnessSlider = BrightnessSlider()
     private let colorMap = ColorMapView()
     private let colorMapCursor = ColorMapCursor()
 
@@ -52,6 +103,8 @@ public final class ColorPicker: UIControl {
         colorMap.addGestureRecognizer(colorMapTap)
 
         brightnessSlider.delegate = self
+        brightnessSlider.sliderShadowBackgroundColor = self.style.sliderShadowBgColor
+        brightnessSlider.sliderSeparatorColor = self.style.sliderSeparatorColor
 
         feedbackGenerator.prepare()
     }
@@ -155,5 +208,12 @@ extension ColorPicker: BrightnessSliderDelegate {
         mapColorToView()
         feedbackIfNeeds()
         sendActionIfNeeds()
+    }
+}
+
+extension ColorPicker {
+    public static func setupDefaultAppearance() {
+        let appearance = Self.appearance()
+        appearance.style = ColorPickerStyle()
     }
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal protocol BrightnessSliderDelegate: class {
+internal protocol BrightnessSliderDelegate: AnyObject {
     func handleBrightnessChanged(slider: BrightnessSlider)
 }
 
@@ -21,6 +21,30 @@ internal class BrightnessSlider: UIView {
             return brightness(for: scrollView.contentOffset.y)
         }
     }
+    
+    var sliderShadowBackgroundColor: UIColor = {
+        let bgColor: UIColor
+        if #available(iOS 13.0, *) {
+            bgColor = UIColor.systemBackground
+        } else {
+            bgColor = UIColor.white
+        }
+        return bgColor
+    }() {
+        didSet {
+            updateShadowColor()
+        }
+    }
+    
+    var sliderSeparatorColor: UIColor = {
+        let separatorColor: UIColor
+        if #available(iOS 13.0, *) {
+            separatorColor = UIColor.tertiarySystemGroupedBackground
+        } else {
+            separatorColor = #colorLiteral(red: 0.8940519691, green: 0.894156158, blue: 0.8940039277, alpha: 1)
+        }
+        return separatorColor
+    }()
 
     private var initialBrightness: CGFloat?
 
@@ -79,22 +103,12 @@ internal class BrightnessSlider: UIView {
     }
 
     private func updateBorderColor() {
-        let separatorColor: UIColor
-        if #available(iOS 13.0, *) {
-            separatorColor = UIColor.tertiarySystemGroupedBackground
-        } else {
-            separatorColor = #colorLiteral(red: 0.8940519691, green: 0.894156158, blue: 0.8940039277, alpha: 1)
-        }
+        let separatorColor: UIColor = self.sliderSeparatorColor
         borderLayer.strokeColor = separatorColor.cgColor
     }
 
     private func updateShadowColor() {
-        let bgColor: UIColor
-        if #available(iOS 13.0, *) {
-            bgColor = UIColor.systemBackground
-        } else {
-            bgColor = UIColor.white
-        }
+        let bgColor: UIColor = self.sliderShadowBackgroundColor
         topShadowLayer.colors = [bgColor.cgColor, bgColor.withAlphaComponent(0).cgColor]
         bottomShadowLayer.colors = [bgColor.cgColor, bgColor.withAlphaComponent(0).cgColor]
     }

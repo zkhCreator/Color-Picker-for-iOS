@@ -1,5 +1,5 @@
 PODS:
-  - Colorful (3.0.0)
+  - Colorful (3.0.2)
 
 DEPENDENCIES:
   - Colorful (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Colorful: 9e093edacaa9fb73512ad9da157f0707b82d2542
+  Colorful: 7e0a692cd03126a1f90e77dbbc65046f2a6a58f9
 
 PODFILE CHECKSUM: a66a05cfd17624715d07316465c31c1ca04906e0
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.11.3
