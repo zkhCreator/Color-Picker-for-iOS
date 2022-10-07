@@ -78,6 +78,9 @@ public final class ColorPicker: UIControl {
 
     private let feedbackGenerator = UISelectionFeedbackGenerator()
     
+    private var tapGesture: UITapGestureRecognizer?
+    private var panGesture: UIPanGestureRecognizer?
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -96,10 +99,12 @@ public final class ColorPicker: UIControl {
 
         let colorMapPan = UIPanGestureRecognizer(target: self, action: #selector(self.handleColorMapPan(pan:)))
         colorMapPan.delegate = self
+        self.panGesture = colorMapPan
         colorMap.addGestureRecognizer(colorMapPan)
 
         let colorMapTap = UITapGestureRecognizer(target: self, action: #selector(self.handleColorMapTap(tap:)))
         colorMapTap.delegate = self
+        self.tapGesture = colorMapTap
         colorMap.addGestureRecognizer(colorMapTap)
 
         brightnessSlider.delegate = self
@@ -196,6 +201,14 @@ public final class ColorPicker: UIControl {
 extension ColorPicker: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer.view == colorMap, otherGestureRecognizer.view == colorMap {
+            return true
+        }
+        
+        return false
+    }
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == self.tapGesture, otherGestureRecognizer == self.panGesture {
             return true
         }
         return false
